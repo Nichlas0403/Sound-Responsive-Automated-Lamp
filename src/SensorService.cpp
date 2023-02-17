@@ -31,7 +31,6 @@ void SensorService::SoundSensorTrigger()
   
   if((_soundSensorCurrentMillis - _soundSensorTimeAtFirstTrigger > _soundSensorRebounce) && (GetSoundSensorState() == HIGH))
   {
-    Serial.println("First trigger");
     _soundSensorTimeAtFirstTrigger = _soundSensorCurrentMillis;
 
     if(_soundSensorFirstSoundSensorTriggered)
