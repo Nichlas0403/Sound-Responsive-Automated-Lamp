@@ -14,21 +14,6 @@
 String _wifiName = "";
 String _wifiPassword = "";
 
-// int led = D7;
-// int sound_digital = D8;
-// int sound_analog = A0;
-
-
-
-// bool ledOn = false;
-// int soundSensorRebounce = 200;
-// unsigned long currentTime;
-// unsigned long lastSoundSensorTrigger;
-
-// bool firstSoundSensorTriggered = false;
-// int timeBeforeTriggerReset = 500;
-// unsigned long timeAtFirstTrigger;
-
 //Flash addresses
 const String _wifiNameFlash = "_wifiName";
 const String _wifiPasswordFlash = "_wifiPassword";
@@ -57,36 +42,6 @@ void setup()
 void loop()
 {
   _sensorService.SoundSensorTrigger();
-  // currentTime = millis();
-  
-  // if((currentTime - lastSoundSensorTrigger > soundSensorRebounce) && (digitalRead(sound_digital) == HIGH))
-  // {
-  //   lastSoundSensorTrigger = currentTime;
-
-  //   if(firstSoundSensorTriggered)
-  //   {
-  //     if(ledOn)
-  //     {
-  //       digitalWrite(led, LOW);
-  //       ledOn = false;
-  //     }
-  //     else
-  //     {
-  //       digitalWrite(led, HIGH);
-  //       ledOn = true;
-  //     }
-
-  //   }
-  //   else
-  //   {
-  //     firstSoundSensorTriggered = true;
-  //     timeAtFirstTrigger = currentTime;
-  //   }
-  // }
-  // else if(currentTime - timeAtFirstTrigger > timeBeforeTriggerReset)
-  // {
-  //   firstSoundSensorTriggered = false;
-  // }
 }
 
 
