@@ -14,10 +14,15 @@ class HttpService
 
         String _baseUrl;
         String _sendSMSSubUrl;
+        String _photoresistorSubUrl;
+        String _dateTimeSubUrl;
 
     public:
         HttpService();
         String SendSMS(String message);
+        int GetPhotoresistorValue();
+        String GetCurrentDateTime();
+        // bool MobileWifiAndBluetoothCheck();
 };
 
 #endif

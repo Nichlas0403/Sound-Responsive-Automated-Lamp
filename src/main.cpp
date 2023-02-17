@@ -14,6 +14,7 @@
 String _wifiName = "";
 String _wifiPassword = "";
 
+
 //Flash addresses
 const String _wifiNameFlash = "_wifiName";
 const String _wifiPasswordFlash = "_wifiPassword";
@@ -36,7 +37,9 @@ void setup()
   _wifiName = _flashService.ReadFromFlash(_wifiNameFlash);
   _wifiPassword = _flashService.ReadFromFlash(_wifiPasswordFlash);
 
-  connectToWiFi();
+  connectToWiFi(); 
+  Serial.println(_httpService.GetPhotoresistorValue());
+  Serial.println(_httpService.GetCurrentDateTime());
 }
 
 void loop()
