@@ -4,23 +4,30 @@
 #include <ESP8266WebServer.h>
 #include "FlashService.h"
 #include "HttpService.h"
+#include "SensorService.h"
+
+//GPIO
+#define relay D7
+#define soundSensor D8
 
 //Core variables
-
 String _wifiName = "";
 String _wifiPassword = "";
 
-int led = D7;
-int sound_digital = D8;
-int sound_analog = A0;
-bool ledOn = false;
-int soundSensorRebounce = 200;
-unsigned long currentTime;
-unsigned long lastSoundSensorTrigger;
+// int led = D7;
+// int sound_digital = D8;
+// int sound_analog = A0;
 
-bool firstSoundSensorTriggered = false;
-int timeBeforeTriggerReset = 500;
-unsigned long timeAtFirstTrigger;
+
+
+// bool ledOn = false;
+// int soundSensorRebounce = 200;
+// unsigned long currentTime;
+// unsigned long lastSoundSensorTrigger;
+
+// bool firstSoundSensorTriggered = false;
+// int timeBeforeTriggerReset = 500;
+// unsigned long timeAtFirstTrigger;
 
 //Flash addresses
 const String _wifiNameFlash = "_wifiName";
@@ -31,6 +38,7 @@ const String _cscsBaseUrlFlash = "_cscsBaseUrl";
 ESP8266WebServer _server(80);
 FlashService _flashService;
 HttpService _httpService;
+SensorService _sensorService(relay, soundSensor);
 
 //Core server functionality
 void restServerRouting();
@@ -38,9 +46,7 @@ void connectToWiFi();
 
 void setup()
 {
-  Serial.begin(9600);
-  pinMode(led, OUTPUT);
-  pinMode(sound_digital, INPUT);  
+  Serial.begin(9600); 
 
   _wifiName = _flashService.ReadFromFlash(_wifiNameFlash);
   _wifiPassword = _flashService.ReadFromFlash(_wifiPasswordFlash);
@@ -50,39 +56,37 @@ void setup()
 
 void loop()
 {
-  currentTime = millis();
+  _sensorService.SoundSensorTrigger();
+  // currentTime = millis();
   
-  if((currentTime - lastSoundSensorTrigger > soundSensorRebounce) && (digitalRead(sound_digital) == HIGH))
-  {
-    lastSoundSensorTrigger = currentTime;
+  // if((currentTime - lastSoundSensorTrigger > soundSensorRebounce) && (digitalRead(sound_digital) == HIGH))
+  // {
+  //   lastSoundSensorTrigger = currentTime;
 
-    if(firstSoundSensorTriggered)
-    {
-      if(ledOn)
-      {
-        digitalWrite(led, LOW);
-        ledOn = false;
-      }
-      else
-      {
-        digitalWrite(led, HIGH);
-        ledOn = true;
-      }
+  //   if(firstSoundSensorTriggered)
+  //   {
+  //     if(ledOn)
+  //     {
+  //       digitalWrite(led, LOW);
+  //       ledOn = false;
+  //     }
+  //     else
+  //     {
+  //       digitalWrite(led, HIGH);
+  //       ledOn = true;
+  //     }
 
-      // _httpService.SendSMS("Soundsensor triggered");
-
-    }
-    else
-    {
-      firstSoundSensorTriggered = true;
-      timeAtFirstTrigger = currentTime;
-    }
-  }
-
-  if(currentTime - timeAtFirstTrigger > timeBeforeTriggerReset)
-  {
-    firstSoundSensorTriggered = false;
-  }
+  //   }
+  //   else
+  //   {
+  //     firstSoundSensorTriggered = true;
+  //     timeAtFirstTrigger = currentTime;
+  //   }
+  // }
+  // else if(currentTime - timeAtFirstTrigger > timeBeforeTriggerReset)
+  // {
+  //   firstSoundSensorTriggered = false;
+  // }
 }
 
 
