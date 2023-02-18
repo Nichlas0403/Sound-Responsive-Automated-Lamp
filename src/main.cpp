@@ -4,27 +4,29 @@
 #include <ESP8266WebServer.h>
 #include "FlashService.h"
 #include "HttpService.h"
-#include "SensorService.h"
+#include "GPIOService.h"
 
 //GPIO
-#define relay D7
-#define soundSensor D8
+#define relayGPIO D5
+#define soundSensorGPIO D8
 
 //Core variables
 String _wifiName = "";
 String _wifiPassword = "";
+bool _soundResponseSetting;
 
 
 //Flash addresses
 const String _wifiNameFlash = "_wifiName";
 const String _wifiPasswordFlash = "_wifiPassword";
 const String _cscsBaseUrlFlash = "_cscsBaseUrl";
+const String _soundResponsiveSettingFlash = "_soundReponsiveSetting";
 
 //Services
 ESP8266WebServer _server(80);
 FlashService _flashService;
 HttpService _httpService;
-SensorService _sensorService(relay, soundSensor);
+GPIOService _GPIOService(relayGPIO, soundSensorGPIO);
 
 //Core server functionality
 void restServerRouting();
@@ -34,17 +36,23 @@ void setup()
 {
   Serial.begin(9600); 
 
+  pinMode(relayGPIO, OUTPUT);
+  pinMode(soundSensorGPIO, INPUT); 
+
   _wifiName = _flashService.ReadFromFlash(_wifiNameFlash);
   _wifiPassword = _flashService.ReadFromFlash(_wifiPasswordFlash);
+  _soundResponseSetting = _flashService.ReadFromFlash(_soundResponsiveSettingFlash).toInt();
 
   connectToWiFi(); 
-  Serial.println(_httpService.GetPhotoresistorValue());
-  Serial.println(_httpService.GetCurrentDateTime());
 }
 
 void loop()
 {
-  _sensorService.SoundSensorTrigger();
+  _server.handleClient();
+
+  if(_soundResponseSetting)
+    _GPIOService.SoundSensorTrigger();
+  
 }
 
 
@@ -56,14 +64,32 @@ void loop()
 
 
 
-// ------------------- API -----------------------
+// ------------------- API -----------------------  
+
+void healthCheck()
+{
+  _server.send(200);
+}
+
+void toggleSoundResponseSetting()
+{
+  if(_soundResponseSetting)
+    _soundResponseSetting = false;
+  else
+    _soundResponseSetting = true;
+  
+  _flashService.WriteToFlash(_soundResponsiveSettingFlash, String(_soundResponseSetting));
+
+  _server.send(200);
+}
 
 
 
 // Core server functionality
 void restServerRouting() 
 {
-  // _server.on(F("/health-check"), HTTP_GET, HealthCheck);
+  _server.on(F("/health-check"), HTTP_GET, healthCheck);
+  _server.on(F("/sound-response"), HTTP_PUT, toggleSoundResponseSetting);
 }
 
 void handleNotFound() 

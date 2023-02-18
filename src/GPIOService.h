@@ -1,12 +1,11 @@
-#ifndef SensorService_h
-#define SensorService_h
+#ifndef GPIOService_h
+#define GPIOService_h
 #include "Arduino.h"
 
-class SensorService
+class GPIOService
 {
     private:
         int _relayGPIO;
-        bool _relayIsOn;
 
         int _soundSensorGPIO;
         unsigned long _soundSensorCurrentMillis;
@@ -15,12 +14,13 @@ class SensorService
         bool _soundSensorFirstSoundSensorTriggered;
         int _soundSensorTimeBeforeTriggerReset;
         
-        void SetRelayState(int state);
         int GetSoundSensorState();
 
     public:
-        SensorService(int relayGPIO, int soundSensorGPIO);
+        GPIOService(int relayGPIO, int soundSensorGPIO);
+        bool _relayIsOn;
         void SoundSensorTrigger(); 
+        void SetRelayState(int state);
 };
 
 #endif
