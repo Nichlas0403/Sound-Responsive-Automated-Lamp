@@ -5,6 +5,9 @@
 class GPIOService
 {
     private:
+        int _turnedOnManuallyState;
+        int _turnedOffManuallyState;
+
         int _relayGPIO;
 
         int _soundSensorGPIO;
@@ -17,9 +20,9 @@ class GPIOService
         int GetSoundSensorState();
 
     public:
-        GPIOService(int relayGPIO, int soundSensorGPIO);
-        bool _relayIsOn;
-        void SoundSensorTrigger(); 
+        GPIOService(int relayGPIO, int soundSensorGPIO, int turnedOnManuallyState, int turnedOffManuallyState);
+        bool relayIsOn;
+        int SoundSensorTrigger(int currentState); 
         void SetRelayState(int state);
 };
 

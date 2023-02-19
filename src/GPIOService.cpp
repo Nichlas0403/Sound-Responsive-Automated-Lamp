@@ -1,8 +1,10 @@
 #include "GPIOService.h"
 #include "Arduino.h"
 
-GPIOService::GPIOService(int relayGPIO, int soundSensorGPIO)
+GPIOService::GPIOService(int relayGPIO, int soundSensorGPIO, int turnedOnManuallyState, int turnedOffManuallyState)
 {
+    _turnedOnManuallyState = turnedOnManuallyState;
+    _turnedOffManuallyState = turnedOffManuallyState;
     _relayGPIO = relayGPIO;
     _soundSensorGPIO = soundSensorGPIO;
     _soundSensorRebounce = 200;
@@ -13,10 +15,11 @@ GPIOService::GPIOService(int relayGPIO, int soundSensorGPIO)
 void GPIOService::SetRelayState(int state)
 {
     if(state == HIGH)
-      _relayIsOn = true;
+      relayIsOn = true;
+    
     else
-      _relayIsOn = false;
-      
+      relayIsOn = false;
+    
     digitalWrite(_relayGPIO, state);
 }
         
@@ -25,7 +28,7 @@ int GPIOService::GetSoundSensorState()
     return digitalRead(_soundSensorGPIO);
 }
 
-void GPIOService::SoundSensorTrigger()
+int GPIOService::SoundSensorTrigger(int currentState)
 {
     _soundSensorCurrentMillis = millis();
   
@@ -35,10 +38,18 @@ void GPIOService::SoundSensorTrigger()
 
     if(_soundSensorFirstSoundSensorTriggered)
     {
-      if(_relayIsOn)
+      if(relayIsOn)
+      {
         SetRelayState(LOW);
+        Serial.println("LOW SOUND");
+        return _turnedOnManuallyState;
+      }
       else
+      {
         SetRelayState(HIGH);
+        Serial.println("HIGH SOUND");
+        return _turnedOffManuallyState;
+      }
     }
     else
     {
@@ -48,4 +59,6 @@ void GPIOService::SoundSensorTrigger()
   }
   else if(_soundSensorCurrentMillis - _soundSensorTimeAtFirstTrigger > _soundSensorTimeBeforeTriggerReset)
     _soundSensorFirstSoundSensorTriggered = false;
+
+  return currentState;
 }
