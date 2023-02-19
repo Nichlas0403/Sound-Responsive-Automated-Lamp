@@ -5,6 +5,7 @@
 #include "FlashService.h"
 #include "HttpService.h"
 #include "GPIOService.h"
+#include "EnvironmentService.h"
 
 //GPIO
 #define relayGPIO D5
@@ -22,28 +23,26 @@ const String _cscsBaseUrlFlash = "_cscsBaseUrl";
 const String _soundResponsiveSettingFlash = "_soundReponsiveSetting";
 
 //States
+const int _defaultState;
 const int _turnedOnManually = 1;
 const int _turnedOffManually = 2;
-const int _turendOnAutomatically = 3;
-const int _turnedOffAutomatically = 4; 
-const int _defaultState;
-
-volatile int _currentState = _defaultState; //default state
+volatile int _currentState = _defaultState;
 
 //Environment Checks
 unsigned long _currentTime;
 int _millisAtLastCheck;
 int _timeBetweenChecks = 900000; //15 minutes
 int _photoresistorThreshold = 700;
-String _turnOnAutomaticallyTime = "16-00-00";
-String _turnOffAutomaticallyTime = "01-00-00";
-String _resetSystemTime = "10-00-00";
+int _turnOnAutomaticallyHour = 16;
+int _turnOffAutomaticallyHour = 1;
+int _resetSystemHour = 10;
 
 //Services
 ESP8266WebServer _server(80);
 FlashService _flashService;
 HttpService _httpService;
 GPIOService _GPIOService(relayGPIO, soundSensorGPIO, _turnedOnManually, _turnedOffManually);
+EnvironmentService _environmentService;
 
 //Core server functionality
 void restServerRouting();
@@ -61,6 +60,9 @@ void setup()
   _wifiPassword = _flashService.ReadFromFlash(_wifiPasswordFlash);
   _soundResponseSetting = _flashService.ReadFromFlash(_soundResponsiveSettingFlash).toInt();
 
+  //TODO: Save these values to flash and read
+  _environmentService.SetCoreValues(_photoresistorThreshold, _turnOnAutomaticallyHour, _turnOffAutomaticallyHour, _resetSystemHour);
+
   connectToWiFi(); 
 }
 
@@ -68,30 +70,43 @@ void loop()
 {
   _server.handleClient();
 
+  if(_soundResponseSetting)
+  {
+    int returnedState = _GPIOService.SoundSensorTrigger(_currentState);
+
+    if(returnedState != _currentState)
+    {
+      int currentHour = _httpService.GetCurrentDateTime().substring(12,14).toInt();
+
+      if(currentHour > _turnOnAutomaticallyHour && currentHour < _turnOffAutomaticallyHour)
+        _currentState = returnedState;
+    }
+  }
+
   _currentTime = millis();
 
-  if(_soundResponseSetting)
-    _currentState = _GPIOService.SoundSensorTrigger(_currentState);
-
-  if(_currentState == _turnedOffManually)
-  {
+  if(_currentTime - _millisAtLastCheck < _timeBetweenChecks)
     return;
-  }
 
-  if(_currentTime - _millisAtLastCheck >= _timeBetweenChecks)
-  {
-    _millisAtLastCheck = _currentTime;
-  }
+  _millisAtLastCheck = _currentTime;
 
+  if(_currentState != _turnedOffManually && _environmentService.ShouldTurnLightsOn())
+    _GPIOService.SetRelayState(LOW);
 
+  else if( _environmentService.ShouldTurnLightsOff())
+    _GPIOService.SetRelayState(HIGH);
+
+  else if(_environmentService.ShouldResetSystem())
+    ESP.restart();
+  
 
 
     //States:
       //default
       //turnedOnManually
-        //Soundsensor or http request
+        //Soundsensor or http request - NOTE: SHould only happen if done during the time it would turn on automatically
       //turnedOffManually
-        //soundsensor or http request
+        //soundsensor or http request - NOTE: SHould only happen if done during the time it would turn on automatically
       //turnedOnAutomatically
         //not turnedOffManually + photoresistor LOW, time of day, blueToothAndWifiCheck
       //turnedOffAutomatiaclly
