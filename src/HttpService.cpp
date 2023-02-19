@@ -1,6 +1,4 @@
 #include "HttpService.h"
-#include "Arduino.h"
-#include "FlashService.h"
 
 HttpService::HttpService() : _client(), _wifiClient(), _urlEncoderDecoder()
 {
@@ -52,6 +50,31 @@ String HttpService::GetCurrentDateTime()
   _client.end();
   return response;
 }
+
+
+bool HttpService::BluetoothAndWiFiCheck()
+{
+  return true;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 String HttpService::SendSMS(String message)
 {

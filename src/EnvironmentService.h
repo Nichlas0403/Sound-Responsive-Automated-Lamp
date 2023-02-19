@@ -8,18 +8,18 @@ class EnvironmentService
 {
     private:
         int _photoresistorThreshold;
-        String _turnOnAutomaticallyTime;
-        String _turnOffAutomaticallyTime;
-        String _resetSystemTime;
+        int _turnOnAutomaticallyTime;
+        int _turnOffAutomaticallyTime;
+        int _resetSystemTime;
 
         HttpService _httpService;
 
     public:
         EnvironmentService();
         void SetCoreValues(int photoresistorThreshold, int turnOnAutomaticallyHour, int turnOffAutomaticallyHour, int resetSystemHour);
-        bool ShouldTurnLightsOn();
-        bool ShouldTurnLightsOff();
-        bool ShouldResetSystem();
+        bool ShouldTurnLightsOn(int currentHour);
+        bool ShouldTurnLightsOff(int currentHour);
+        bool ShouldResetSystem(int currentHour);
 };
 
 #endif

@@ -1,5 +1,4 @@
 #include "GPIOService.h"
-#include "Arduino.h"
 
 GPIOService::GPIOService(int relayGPIO, int soundSensorGPIO, int turnedOnManuallyState, int turnedOffManuallyState)
 {
@@ -14,13 +13,16 @@ GPIOService::GPIOService(int relayGPIO, int soundSensorGPIO, int turnedOnManuall
 
 void GPIOService::SetRelayState(int state)
 {
-    if(state == HIGH)
-      relayIsOn = true;
-    
-    else
+    if(state == HIGH && !relayIsOn)
+    {
+        relayIsOn = true;
+        digitalWrite(_relayGPIO, LOW);
+    }
+    else if(state == LOW && relayIsOn)
+    {
       relayIsOn = false;
-    
-    digitalWrite(_relayGPIO, state);
+      digitalWrite(_relayGPIO, HIGH);
+    }
 }
         
 int GPIOService::GetSoundSensorState()
@@ -41,13 +43,11 @@ int GPIOService::SoundSensorTrigger(int currentState)
       if(relayIsOn)
       {
         SetRelayState(LOW);
-        Serial.println("LOW SOUND");
         return _turnedOnManuallyState;
       }
       else
       {
         SetRelayState(HIGH);
-        Serial.println("HIGH SOUND");
         return _turnedOffManuallyState;
       }
     }

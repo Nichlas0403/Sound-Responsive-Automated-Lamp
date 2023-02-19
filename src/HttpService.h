@@ -1,9 +1,10 @@
 #ifndef HttpService_h
 #define HttpService_h
-#include "Arduino.h"
 #include <ESP8266HttpClient.h>
+#include "Arduino.h"
 #include "ArduinoJson.h"
 #include "UrlEncoderDecoder.h"
+#include "FlashService.h"
 
 class HttpService
 {
@@ -22,6 +23,7 @@ class HttpService
         String SendSMS(String message);
         int GetPhotoresistorValue();
         String GetCurrentDateTime();
+        bool BluetoothAndWiFiCheck();
         // bool MobileWifiAndBluetoothCheck();
 };
 

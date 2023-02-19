@@ -12,31 +12,38 @@ void EnvironmentService::SetCoreValues(int photoresistorThreshold, int turnOnAut
     _resetSystemTime = resetSystemHour;
 }
 
-bool EnvironmentService::ShouldTurnLightsOn()
+bool EnvironmentService::ShouldTurnLightsOn(int currentHour)
 {
+    if(!(currentHour > _turnOnAutomaticallyTime && currentHour < _turnOffAutomaticallyTime))
+        return false;
+
     bool bluetoothAndWiFiCheck = _httpService.BluetoothAndWiFiCheck();
     int photoresistorValue = _httpService.GetPhotoresistorValue();
-    String currentHour = _httpService.GetCurrentDateTime().substring(12,14);
 
     bool photoresistorCheck = photoresistorValue < _photoresistorThreshold;
-    bool hourCheck = currentHour > _turnOnAutomaticallyTime && currentHour < _turnOffAutomaticallyTime;
 
-    if(photoresistorCheck && hourCheck && bluetoothAndWiFiCheck)
+    if(photoresistorCheck && bluetoothAndWiFiCheck)
         return true;
     else
         return false;
 
 }
         
-bool EnvironmentService::ShouldTurnLightsOff()
+bool EnvironmentService::ShouldTurnLightsOff(int currentHour)
 {
-    
+    if(currentHour > _turnOffAutomaticallyTime && currentHour < _resetSystemTime)
+        return true;
+    else
+        return false;
 }
 
 
-bool EnvironmentService::ShouldResetSystem()
+bool EnvironmentService::ShouldResetSystem(int currentHour)
 {
-
+    if(currentHour > _resetSystemTime && currentHour < _turnOnAutomaticallyTime)
+        return true;
+    else
+        return false;
 }
 
 // int _photoresistorThreshold = 700;

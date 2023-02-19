@@ -26,6 +26,8 @@ const String _soundResponsiveSettingFlash = "_soundReponsiveSetting";
 const int _defaultState;
 const int _turnedOnManually = 1;
 const int _turnedOffManually = 2;
+const int _turnedOnAutomatically = 3;
+const int _turnedOffAutomatically = 4;
 volatile int _currentState = _defaultState;
 
 //Environment Checks
@@ -90,37 +92,22 @@ void loop()
 
   _millisAtLastCheck = _currentTime;
 
-  if(_currentState != _turnedOffManually && _environmentService.ShouldTurnLightsOn())
+  int currentHour = _httpService.GetCurrentDateTime().substring(12,14).toInt();
+
+  if(_currentState == _defaultState && _environmentService.ShouldTurnLightsOn(currentHour))
+  {
     _GPIOService.SetRelayState(LOW);
-
-  else if( _environmentService.ShouldTurnLightsOff())
+    _currentState = _turnedOnAutomatically;
+  }
+  else if(_currentState != _turnedOffAutomatically && _currentState != _turnedOffManually && _environmentService.ShouldTurnLightsOff(currentHour))
+  {
     _GPIOService.SetRelayState(HIGH);
-
-  else if(_environmentService.ShouldResetSystem())
+    _currentState = _turnedOffAutomatically;
+  }
+  else if(_currentState != _defaultState && _environmentService.ShouldResetSystem(currentHour))
+  {
     ESP.restart();
-  
-
-
-    //States:
-      //default
-      //turnedOnManually
-        //Soundsensor or http request - NOTE: SHould only happen if done during the time it would turn on automatically
-      //turnedOffManually
-        //soundsensor or http request - NOTE: SHould only happen if done during the time it would turn on automatically
-      //turnedOnAutomatically
-        //not turnedOffManually + photoresistor LOW, time of day, blueToothAndWifiCheck
-      //turnedOffAutomatiaclly
-        //TurnedOnAutomatically + time of day
-        //TurnedOnAutomatically + blueToothAndWifiCheck
-        //OR
-        //time of day
-        //blueToothAndWifiCheck
-      
-      //If in any state
-        //if time is between 10 and 14 reset state
-          //Comepletely reset MC (to reset millis()?)
-
-  
+  }  
 }
 
 

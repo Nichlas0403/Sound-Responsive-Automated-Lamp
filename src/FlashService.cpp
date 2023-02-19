@@ -1,6 +1,4 @@
 #include "FlashService.h"
-#include "Arduino.h"
-#include <LittleFS.h>
 
 void FlashService::WriteToFlash(String address, String content)
 {
