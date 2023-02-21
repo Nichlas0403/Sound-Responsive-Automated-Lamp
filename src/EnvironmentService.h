@@ -11,12 +11,14 @@ class EnvironmentService
         int _turnOnAutomaticallyTime;
         int _turnOffAutomaticallyTime;
         int _resetSystemTime;
+        int _minHour;
+        int _maxHour;
 
         HttpService _httpService;
 
     public:
         EnvironmentService();
-        void SetCoreValues(int photoresistorThreshold, int turnOnAutomaticallyHour, int turnOffAutomaticallyHour, int resetSystemHour);
+        void SetCoreValues(int photoresistorThreshold, int turnOnAutomaticallyHour, int turnOffAutomaticallyHour, int resetSystemHour, int minHour, int maxHour);
         bool ShouldTurnLightsOn(int currentHour);
         bool ShouldTurnLightsOff(int currentHour);
         bool ShouldResetSystem(int currentHour);

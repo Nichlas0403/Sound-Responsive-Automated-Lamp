@@ -23,7 +23,7 @@ const String _cscsBaseUrlFlash = "_cscsBaseUrl";
 const String _soundResponsiveSettingFlash = "_soundReponsiveSetting";
 
 //States
-const int _defaultState;
+const int _defaultState = 0;
 const int _turnedOnManually = 1;
 const int _turnedOffManually = 2;
 const int _turnedOnAutomatically = 3;
@@ -33,11 +33,16 @@ volatile int _currentState = _defaultState;
 //Environment Checks
 unsigned long _currentTime;
 int _millisAtLastCheck;
-int _timeBetweenChecks = 900000; //15 minutes
+// int _timeBetweenChecks = 900000; //15 minutes
+int _timeBetweenChecks = 15000;
 int _photoresistorThreshold = 700;
 int _turnOnAutomaticallyHour = 16;
 int _turnOffAutomaticallyHour = 1;
 int _resetSystemHour = 10;
+
+//Basic 24 H clock variables
+const int _minHour = 0;
+const int _maxHour = 23;
 
 //Services
 ESP8266WebServer _server(80);
@@ -57,19 +62,21 @@ void setup()
 
   pinMode(relayGPIO, OUTPUT);
   pinMode(soundSensorGPIO, INPUT); 
+  digitalWrite(relayGPIO, HIGH);
 
   _wifiName = _flashService.ReadFromFlash(_wifiNameFlash);
   _wifiPassword = _flashService.ReadFromFlash(_wifiPasswordFlash);
   _soundResponseSetting = _flashService.ReadFromFlash(_soundResponsiveSettingFlash).toInt();
 
   //TODO: Save these values to flash and read
-  _environmentService.SetCoreValues(_photoresistorThreshold, _turnOnAutomaticallyHour, _turnOffAutomaticallyHour, _resetSystemHour);
+  _environmentService.SetCoreValues(_photoresistorThreshold, _turnOnAutomaticallyHour, _turnOffAutomaticallyHour, _resetSystemHour, _minHour, _maxHour);
 
   connectToWiFi(); 
 }
 
 void loop()
 {
+  
   _server.handleClient();
 
   if(_soundResponseSetting)
@@ -79,8 +86,9 @@ void loop()
     if(returnedState != _currentState)
     {
       int currentHour = _httpService.GetCurrentDateTime().substring(12,14).toInt();
-
-      if(currentHour > _turnOnAutomaticallyHour && currentHour < _turnOffAutomaticallyHour)
+      
+      if((currentHour >= _turnOnAutomaticallyHour && currentHour <= _maxHour) || 
+         (currentHour >= _minHour && currentHour <= _turnOffAutomaticallyHour))
         _currentState = returnedState;
     }
   }
@@ -99,15 +107,18 @@ void loop()
     _GPIOService.SetRelayState(LOW);
     _currentState = _turnedOnAutomatically;
   }
-  else if(_currentState != _turnedOffAutomatically && _currentState != _turnedOffManually && _environmentService.ShouldTurnLightsOff(currentHour))
-  {
-    _GPIOService.SetRelayState(HIGH);
-    _currentState = _turnedOffAutomatically;
-  }
-  else if(_currentState != _defaultState && _environmentService.ShouldResetSystem(currentHour))
-  {
-    ESP.restart();
-  }  
+  // else if(_currentState != _turnedOffAutomatically && _currentState != _turnedOffManually && _environmentService.ShouldTurnLightsOff(currentHour))
+  // {
+  //   _GPIOService.SetRelayState(HIGH);
+  //   _currentState = _turnedOffAutomatically;
+  // }
+  // else if(_currentState != _defaultState && _environmentService.ShouldResetSystem(currentHour))
+  // {
+  //   ESP.restart();
+  // }  
+
+  
+
 }
 
 
@@ -140,18 +151,18 @@ void toggleSoundResponseSetting()
 
 void toggleRelay()
 {
-  if(_GPIOService.relayIsOn)
-  {
-    _GPIOService.SetRelayState(LOW);
-    _GPIOService.relayIsOn = false;
-    _currentState = _turnedOffManually;
-  }
-  else
-  {
-    _GPIOService.SetRelayState(HIGH);
-    _GPIOService.relayIsOn = true;
-    _currentState = _turnedOnManually;
-  }
+  // if(_GPIOService.relayIsOn)
+  // {
+  //   _GPIOService.SetRelayState(LOW);
+  //   _GPIOService.relayIsOn = false;
+  //   _currentState = _turnedOffManually;
+  // }
+  // else
+  // {
+  //   _GPIOService.SetRelayState(HIGH);
+  //   _GPIOService.relayIsOn = true;
+  //   _currentState = _turnedOnManually;
+  // }
 
   _server.send(200);
 

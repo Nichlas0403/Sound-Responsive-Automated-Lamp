@@ -8,15 +8,14 @@ GPIOService::GPIOService(int relayGPIO, int soundSensorGPIO, int turnedOnManuall
     _soundSensorGPIO = soundSensorGPIO;
     _soundSensorRebounce = 200;
     _soundSensorTimeBeforeTriggerReset = 500;
-    SetRelayState(HIGH);
 }
 
 void GPIOService::SetRelayState(int state)
 {
     if(state == HIGH && !relayIsOn)
     {
-        relayIsOn = true;
-        digitalWrite(_relayGPIO, LOW);
+      relayIsOn = true;
+      digitalWrite(_relayGPIO, LOW);
     }
     else if(state == LOW && relayIsOn)
     {
