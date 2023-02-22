@@ -40,22 +40,8 @@ bool EnvironmentService::ShouldTurnLightsOn(int currentHour)
         
 bool EnvironmentService::ShouldTurnLightsOff(int currentHour)
 {
-    if((currentHour > _turnOffAutomaticallyTime && currentHour < _resetSystemTime)
+    if(currentHour > _turnOffAutomaticallyTime && currentHour < _resetSystemTime)
         return true;
     else
         return false;
 }
-
-
-bool EnvironmentService::ShouldResetSystem(int currentHour)
-{
-    if(currentHour > _resetSystemTime && currentHour < _turnOnAutomaticallyTime)
-        return true;
-    else
-        return false;
-}
-
-// int _photoresistorThreshold = 700;
-// String _turnOnAutomaticallyTime = "16-00-00";
-// String _turnOffAutomaticallyTime = "01-00-00";
-// String _resetSystemTime = "10-00-00";

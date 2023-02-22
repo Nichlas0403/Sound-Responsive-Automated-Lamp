@@ -63,6 +63,7 @@ void setup()
   pinMode(relayGPIO, OUTPUT);
   pinMode(soundSensorGPIO, INPUT); 
   digitalWrite(relayGPIO, HIGH);
+  _GPIOService.relayIsOn = false;
 
   _wifiName = _flashService.ReadFromFlash(_wifiNameFlash);
   _wifiPassword = _flashService.ReadFromFlash(_wifiPasswordFlash);
@@ -79,19 +80,19 @@ void loop()
   
   _server.handleClient();
 
-  if(_soundResponseSetting)
-  {
-    int returnedState = _GPIOService.SoundSensorTrigger(_currentState);
+  // if(_soundResponseSetting)
+  // {
+  //   int returnedState = _GPIOService.SoundSensorTrigger(_currentState);
 
-    if(returnedState != _currentState)
-    {
-      int currentHour = _httpService.GetCurrentDateTime().substring(12,14).toInt();
+  //   if(returnedState != _currentState)
+  //   {
+  //     int currentHour = _httpService.GetCurrentDateTime().substring(12,14).toInt();
       
-      if((currentHour >= _turnOnAutomaticallyHour && currentHour <= _maxHour) || 
-         (currentHour >= _minHour && currentHour <= _turnOffAutomaticallyHour))
-        _currentState = returnedState;
-    }
-  }
+  //     if((currentHour >= _turnOnAutomaticallyHour && currentHour <= _maxHour) || 
+  //        (currentHour >= _minHour && currentHour <= _turnOffAutomaticallyHour))
+  //       _currentState = returnedState;
+  //   }
+  // }
 
   _currentTime = millis();
 
@@ -100,7 +101,8 @@ void loop()
 
   _millisAtLastCheck = _currentTime;
 
-  int currentHour = _httpService.GetCurrentDateTime().substring(12,14).toInt();
+  // int currentHour = _httpService.GetCurrentDateTime().substring(12,14).toInt();
+  int currentHour = 16;
 
   if(_currentState == _defaultState && _environmentService.ShouldTurnLightsOn(currentHour))
   {
@@ -112,7 +114,7 @@ void loop()
   //   _GPIOService.SetRelayState(HIGH);
   //   _currentState = _turnedOffAutomatically;
   // }
-  // else if(_currentState != _defaultState && _environmentService.ShouldResetSystem(currentHour))
+  // else if(_currentState != _defaultState && currentHour == _resetSystemHour)
   // {
   //   ESP.restart();
   // }  
