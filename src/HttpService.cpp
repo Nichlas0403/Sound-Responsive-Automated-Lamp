@@ -2,12 +2,14 @@
 
 HttpService::HttpService() : _client(), _wifiClient(), _urlEncoderDecoder()
 {
-  FlashService _flashService;
-
- _baseUrl = _flashService.ReadFromFlash("_cscsBaseUrl");
  _sendSMSSubUrl = "/send-SMS";
  _dateTimeSubUrl = "/current-datetime";
  _photoresistorSubUrl = "/photoresistor-value";
+}
+
+void HttpService::SetCSCSBaseUrl(String baseUrl)
+{
+  _baseUrl = baseUrl;
 }
 
 int HttpService::GetPhotoresistorValue()

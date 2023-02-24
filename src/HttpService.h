@@ -4,7 +4,6 @@
 #include "Arduino.h"
 #include "ArduinoJson.h"
 #include "UrlEncoderDecoder.h"
-#include "FlashService.h"
 
 class HttpService
 {
@@ -20,6 +19,7 @@ class HttpService
 
     public:
         HttpService();
+        void SetCSCSBaseUrl(String baseUrl);
         String SendSMS(String message);
         int GetPhotoresistorValue();
         String GetCurrentDateTime();

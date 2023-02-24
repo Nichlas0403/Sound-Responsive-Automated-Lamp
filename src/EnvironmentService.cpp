@@ -34,23 +34,19 @@ bool EnvironmentService::ShouldTurnLightsOn(int currentHour)
 
         // bluetoothCheck = _httpService.BluetoothCheck();
         bluetoothCheck = true;
-        Serial.println("bluetoothcheck");   
 
         if(!bluetoothCheck)
         {
             // wiFiCheck = _httpService.WiFiCheck();
             wiFiCheck = false;
-            Serial.println("bluetooth false. Checking wifi");
         }
 
         if(!bluetoothCheck && !wiFiCheck)
         {
-            Serial.println("wifi and bluetooth false. Returning false");
             return false;
         }
 
-        // int photoresistorValue = _httpService.GetPhotoresistorValue();
-        int photoresistorValue = 700;
+        int photoresistorValue = _httpService.GetPhotoresistorValue();
 
         bool photoresistorCheck = photoresistorValue <= _photoresistorThreshold;
 
