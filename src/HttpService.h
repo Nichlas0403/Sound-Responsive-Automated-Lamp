@@ -23,7 +23,8 @@ class HttpService
         String SendSMS(String message);
         int GetPhotoresistorValue();
         String GetCurrentDateTime();
-        bool BluetoothAndWiFiCheck();
+        bool BluetoothCheck();
+        bool WiFiCheck();
         // bool MobileWifiAndBluetoothCheck();
 };
 

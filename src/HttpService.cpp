@@ -52,7 +52,12 @@ String HttpService::GetCurrentDateTime()
 }
 
 
-bool HttpService::BluetoothAndWiFiCheck()
+bool HttpService::BluetoothCheck()
+{
+  return true;
+}
+
+bool HttpService::WiFiCheck()
 {
   return true;
 }

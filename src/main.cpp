@@ -34,7 +34,7 @@ volatile int _currentState = _defaultState;
 unsigned long _currentTime;
 int _millisAtLastCheck;
 // int _timeBetweenChecks = 900000; //15 minutes
-int _timeBetweenChecks = 15000;
+int _timeBetweenChecks = 3000;
 int _photoresistorThreshold = 700;
 int _turnOnAutomaticallyHour = 16;
 int _turnOffAutomaticallyHour = 1;
@@ -63,7 +63,7 @@ void setup()
   pinMode(relayGPIO, OUTPUT);
   pinMode(soundSensorGPIO, INPUT); 
   digitalWrite(relayGPIO, HIGH);
-  _GPIOService.relayIsOn = false;
+  _GPIOService.relayIsHigh = true;
 
   _wifiName = _flashService.ReadFromFlash(_wifiNameFlash);
   _wifiPassword = _flashService.ReadFromFlash(_wifiPasswordFlash);
@@ -72,7 +72,7 @@ void setup()
   //TODO: Save these values to flash and read
   _environmentService.SetCoreValues(_photoresistorThreshold, _turnOnAutomaticallyHour, _turnOffAutomaticallyHour, _resetSystemHour, _minHour, _maxHour);
 
-  connectToWiFi(); 
+  // connectToWiFi(); 
 }
 
 void loop()
@@ -80,19 +80,22 @@ void loop()
   
   _server.handleClient();
 
-  // if(_soundResponseSetting)
-  // {
-  //   int returnedState = _GPIOService.SoundSensorTrigger(_currentState);
+  if(_soundResponseSetting)
+  {
+    int returnedState = _GPIOService.SoundSensorTrigger(_currentState);
 
-  //   if(returnedState != _currentState)
-  //   {
-  //     int currentHour = _httpService.GetCurrentDateTime().substring(12,14).toInt();
+    if(returnedState != _currentState)
+    {
+      // int currentHour = _httpService.GetCurrentDateTime().substring(12,14).toInt();
+      int currentHour = 16;
       
-  //     if((currentHour >= _turnOnAutomaticallyHour && currentHour <= _maxHour) || 
-  //        (currentHour >= _minHour && currentHour <= _turnOffAutomaticallyHour))
-  //       _currentState = returnedState;
-  //   }
-  // }
+      if(_environmentService.IsAutomationTime(currentHour))
+      {
+        _currentState = returnedState;
+        Serial.println(_currentState);
+      }
+    }
+  }
 
   _currentTime = millis();
 

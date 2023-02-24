@@ -21,6 +21,7 @@ class EnvironmentService
         void SetCoreValues(int photoresistorThreshold, int turnOnAutomaticallyHour, int turnOffAutomaticallyHour, int resetSystemHour, int minHour, int maxHour);
         bool ShouldTurnLightsOn(int currentHour);
         bool ShouldTurnLightsOff(int currentHour);
+        bool IsAutomationTime(int currentHour);
 };
 
 #endif

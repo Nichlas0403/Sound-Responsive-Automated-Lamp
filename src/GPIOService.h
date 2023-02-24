@@ -21,7 +21,7 @@ class GPIOService
 
     public:
         GPIOService(int relayGPIO, int soundSensorGPIO, int turnedOnManuallyState, int turnedOffManuallyState);
-        bool relayIsOn;
+        bool relayIsHigh;
         int SoundSensorTrigger(int currentState); 
         void SetRelayState(int state);
 };

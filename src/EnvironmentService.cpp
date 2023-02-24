@@ -14,28 +14,53 @@ void EnvironmentService::SetCoreValues(int photoresistorThreshold, int turnOnAut
     _maxHour = maxHour;
 }
 
+
+bool EnvironmentService::IsAutomationTime(int currentHour)
+{
+        if((currentHour >= _turnOnAutomaticallyTime && currentHour <= _maxHour) ||
+       (currentHour <= _turnOffAutomaticallyTime && currentHour >= _minHour))
+            return true;
+
+        return false;
+}
+
 bool EnvironmentService::ShouldTurnLightsOn(int currentHour)
 {
 
-    if((currentHour >= _turnOnAutomaticallyTime && currentHour <= _maxHour) ||
-       (currentHour <= _turnOffAutomaticallyTime && currentHour >= _minHour))
+    if(IsAutomationTime(currentHour))
     {
-        bool bluetoothAndWiFiCheck = _httpService.BluetoothAndWiFiCheck();
-        int photoresistorValue = _httpService.GetPhotoresistorValue();
+        bool bluetoothCheck;
+        bool wiFiCheck;
 
-        bool photoresistorCheck = photoresistorValue < _photoresistorThreshold;
+        // bluetoothCheck = _httpService.BluetoothCheck();
+        bluetoothCheck = true;
+        Serial.println("bluetoothcheck");   
 
-        if(photoresistorCheck && bluetoothAndWiFiCheck)
-            return true;
-        else
+        if(!bluetoothCheck)
+        {
+            // wiFiCheck = _httpService.WiFiCheck();
+            wiFiCheck = false;
+            Serial.println("bluetooth false. Checking wifi");
+        }
+
+        if(!bluetoothCheck && !wiFiCheck)
+        {
+            Serial.println("wifi and bluetooth false. Returning false");
             return false;
+        }
+
+        // int photoresistorValue = _httpService.GetPhotoresistorValue();
+        int photoresistorValue = 700;
+
+        bool photoresistorCheck = photoresistorValue <= _photoresistorThreshold;
+
+        if(!photoresistorCheck)
+            return false;
+
+        return true;
     }
-    else
-        return false;
-      
 
-
-
+    return false;
 }
         
 bool EnvironmentService::ShouldTurnLightsOff(int currentHour)
