@@ -172,8 +172,7 @@ void toggleRelay()
   else
     _GPIOService.SetRelayState(HIGH);
 
-  //Goal of this endpoint is for the relay to act right away. Therefore this http request is handled afterwards
-  //and an extra if-statement is required.
+  //Goal of this endpoint is for the relay to act right away. Therefore this http request is handled afterwards and an extra if-statement is then required.
   int currentHour = _httpService.GetCurrentDateTime().substring(12,14).toInt();
       
   if(_environmentService.IsAutomationTime(currentHour))
@@ -183,8 +182,6 @@ void toggleRelay()
     else
       _currentState = _turnedOnManually;
   }
-
-  Serial.println(_currentState);
 
   _server.send(200);
 
